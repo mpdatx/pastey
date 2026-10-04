@@ -1,0 +1,30 @@
+# pmdocs configuration — see the project-docs skill.
+[site]
+title = "pastey"
+# The sidebar is fixed (Overview, Roadmap, Backlog, Product, Architecture, Decisions, …).
+# Attach your own pages with frontmatter `parent: overview|product|architecture|decisions`.
+# The root README.md is rendered by default as a "Repository" group; to turn it off:
+# readme = false
+# Optional: other Markdown outside docs/ to render too. Name the group and say what it is:
+# [[site.extra]]
+# group = "Decision records"
+# about = "Architecture decision records, kept beside the code in adr/."
+# paths = ["adr/*.md"]
+
+[paths]
+specs = "docs/superpowers/specs"
+plans = "docs/superpowers/plans"
+# Markdown under docs/ that is not part of the convention: not validated, not rendered.
+exclude = []
+
+# One [[map]] per area of the code: when files matching `paths` change,
+# at least one of `pages` should change in the same commit. All paths are relative to
+# the repository root; a page may live outside docs/ (e.g. "LICENSE.md", "CONTRIBUTING.md").
+[[map]]
+paths = ["skills/**"]
+pages = ["docs/architecture.md"]
+
+# Tracked files matching `include` (minus `exclude`) should be covered by some [[map]].
+[coverage]
+include = ["skills/**"]
+exclude = []

@@ -1,0 +1,35 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run --quiet \"$(git rev-parse --show-toplevel)/scripts/pmdocs.py\" hook post-edit"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run --quiet \"$(git rev-parse --show-toplevel)/scripts/pmdocs.py\" hook stop"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run --quiet \"$(git rev-parse --show-toplevel)/scripts/pmdocs.py\" hook session-start"
+          }
+        ]
+      }
+    ]
+  }
+}
