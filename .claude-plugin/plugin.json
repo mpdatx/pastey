@@ -1,0 +1,7 @@
+{
+  "name": "pastey",
+  "description": "Automatically opens generated documents and copy/paste snippets in your editor of choice (VS Code by default).",
+  "version": "0.1.0",
+  "license": "MIT",
+  "keywords": ["editor", "vscode", "documents", "snippets"]
+}

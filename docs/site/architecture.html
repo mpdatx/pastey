@@ -70,7 +70,7 @@ img,svg{max-width:100%}
 <main>
 <h1>Architecture</h1>
 <p class="summary">How the pieces fit together, and where each lives in the code.</p>
-<details class="toc"><summary>On this page</summary><ul><li class="l2"><a href="#overview">Overview</a></li><li class="l2"><a href="#components">Components</a></li><li class="l3"><a href="#matching-and-config-scriptspastey_openpy-configdefaultstoml">Matching and config (scripts/pasteyopen.py, config/defaults.toml)</a></li><li class="l3"><a href="#opener-scriptspastey_openpy">Opener (scripts/pasteyopen.py)</a></li><li class="l2"><a href="#code-pointers">Code pointers</a></li></ul></details>
+<details class="toc"><summary>On this page</summary><ul><li class="l2"><a href="#overview">Overview</a></li><li class="l2"><a href="#components">Components</a></li><li class="l3"><a href="#matching-and-config-scriptspastey_openpy-configdefaultstoml">Matching and config (scripts/pasteyopen.py, config/defaults.toml)</a></li><li class="l3"><a href="#opener-scriptspastey_openpy">Opener (scripts/pasteyopen.py)</a></li><li class="l3"><a href="#plugin-wiring-claude-pluginpluginjson-hookshooksjson">Plugin wiring (.claude-plugin/plugin.json, hooks/hooks.json)</a></li><li class="l2"><a href="#code-pointers">Code pointers</a></li></ul></details>
 
 <h2 id="overview">Overview</h2>
 <p>Not designed yet. The deliverable is a Claude Code skill (instructions Claude follows,
@@ -92,6 +92,10 @@ is <code>create</code> always opens; other writes open once per session. <code>m
 errors go to <code>%TEMP%\pastey\pastey.log</code>. Set <code>PASTEY_DEBUG=1</code> to log each raw payload.
 <code>PASTEY_STATE_DIR</code> and <code>PASTEY_USER_CONFIG</code> relocate the state directory and user config
 (used by the tests).</p>
+<h3 id="plugin-wiring-claude-pluginpluginjson-hookshooksjson">Plugin wiring (<code>.claude-plugin/plugin.json</code>, <code>hooks/hooks.json</code>)</h3>
+<p>The plugin is named <code>pastey</code>. <code>hooks.json</code> registers one <code>PostToolUse</code> hook on
+<code>Write|Edit|MultiEdit</code> that runs <code>uv run --no-project ${CLAUDE_PLUGIN_ROOT}/scripts/pastey_open.py</code>
+under bash. The script's PEP 723 header requires Python 3.11+, which <code>uv</code> provides.</p>
 <h2 id="code-pointers">Code pointers</h2>
 <table>
 <thead>

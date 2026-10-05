@@ -33,6 +33,12 @@ errors go to `%TEMP%\pastey\pastey.log`. Set `PASTEY_DEBUG=1` to log each raw pa
 `PASTEY_STATE_DIR` and `PASTEY_USER_CONFIG` relocate the state directory and user config
 (used by the tests).
 
+### Plugin wiring (`.claude-plugin/plugin.json`, `hooks/hooks.json`)
+
+The plugin is named `pastey`. `hooks.json` registers one `PostToolUse` hook on
+`Write|Edit|MultiEdit` that runs `uv run --no-project ${CLAUDE_PLUGIN_ROOT}/scripts/pastey_open.py`
+under bash. The script's PEP 723 header requires Python 3.11+, which `uv` provides.
+
 ## Code pointers
 
 | Area | Where |
