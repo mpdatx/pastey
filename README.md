@@ -38,10 +38,10 @@ keeping everything already in that file. Re-running is safe, and the first run s
 original settings as `settings.json.pastey.bak`.
 
 ```
-uv run scripts/pastey_install.py install                    # for you, in every project (~/.claude)
-uv run scripts/pastey_install.py install --project C:\work\myproj   # for one project only
-uv run scripts/pastey_install.py status
-uv run scripts/pastey_install.py uninstall                  # removes only what it added
+uv run install.py install                    # for you, in every project (~/.claude)
+uv run install.py install --project C:\work\myproj   # for one project only
+uv run install.py status
+uv run install.py uninstall                  # removes only what it added
 ```
 
 Restart Claude Code afterwards. The hook points at the cloned repo, so keep the clone

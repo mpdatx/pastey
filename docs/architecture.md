@@ -72,7 +72,7 @@ The plugin is named `pastey`. `hooks.json` registers one `PostToolUse` hook on
 `Write|Edit|MultiEdit` that runs `uv run --no-project ${CLAUDE_PLUGIN_ROOT}/scripts/pastey_open.py`
 under bash. The script's PEP 723 header requires Python 3.11+, which `uv` provides.
 
-### Manual installer (`scripts/pastey_install.py`)
+### Manual installer (`install.py`)
 
 The alternative to installing as a plugin. `install(claude_dir)` copies
 `skills/pastey/SKILL.md` to `<claude_dir>/skills/pastey/` and merges one `PostToolUse`
@@ -100,7 +100,7 @@ back to printing the text; the hook can only react to writes that happen.
 | Area | Where |
 |---|---|
 | Opener, glob matching, config loading | `scripts/pastey_open.py` |
-| Manual (non-plugin) installer | `scripts/pastey_install.py` |
+| Manual (non-plugin) installer | `install.py` |
 | Default editor, allow and deny globs | `config/defaults.toml` |
 | Hook registration | `hooks/hooks.json` |
 | Plugin manifest | `.claude-plugin/plugin.json` |

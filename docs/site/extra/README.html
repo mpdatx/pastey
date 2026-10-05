@@ -103,10 +103,10 @@ hook runs, so that first write can be slow.</p>
 <code>&lt;claude-dir&gt;/skills/pastey</code> and merges the hook into <code>&lt;claude-dir&gt;/settings.json</code>,
 keeping everything already in that file. Re-running is safe, and the first run saves your
 original settings as <code>settings.json.pastey.bak</code>.</p>
-<pre><code>uv run scripts/pastey_install.py install                    # for you, in every project (~/.claude)
-uv run scripts/pastey_install.py install --project C:\work\myproj   # for one project only
-uv run scripts/pastey_install.py status
-uv run scripts/pastey_install.py uninstall                  # removes only what it added
+<pre><code>uv run install.py install                    # for you, in every project (~/.claude)
+uv run install.py install --project C:\work\myproj   # for one project only
+uv run install.py status
+uv run install.py uninstall                  # removes only what it added
 </code></pre>
 <p>Restart Claude Code afterwards. The hook points at the cloned repo, so keep the clone
 where it is; if you move it, re-run <code>install</code> to update the path. To update pastey, pull

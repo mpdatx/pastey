@@ -94,10 +94,10 @@ a new dated line saying what is withdrawn and set the gate back to <code>waiting
 an old verdict.</p>
 <h2 id="g02-does-the-manual-non-plugin-install-work-in-a-real-session">G02. Does the manual (non-plugin) install work in a real session?</h2>
 <p>Status: waiting · Asked: 2026-10-05 · Needs: Plugin NOT loaded with <code>--plugin-dir</code>; no other pastey hook registered</p>
-<p>Setup: from the repo run <code>uv run scripts/pastey_install.py install --project &lt;a scratch project&gt;</code>,
+<p>Setup: from the repo run <code>uv run install.py install --project &lt;a scratch project&gt;</code>,
 then start <code>claude</code> in that project (restart if it was already open) in manual or
 <code>accept edits</code> mode. Ask Claude to write a short spec under <code>docs/</code> and to give you an SQL
-query to copy. Then run <code>uv run scripts/pastey_install.py uninstall --project &lt;same project&gt;</code>.
+query to copy. Then run <code>uv run install.py uninstall --project &lt;same project&gt;</code>.
 Passes if: the spec and the numbered <code>snippets/NNNN-*.sql</code> open in VS Code with no plugin
 loaded; <code>status</code> shows hook and skill installed before uninstall; after uninstall,
 <code>.claude/settings.json</code> holds only what it held before and a new write does not open.

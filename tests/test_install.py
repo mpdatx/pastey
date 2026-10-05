@@ -7,8 +7,8 @@ import unittest
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO / "scripts"))
-import pastey_install as pi
+sys.path.insert(0, str(REPO))
+import install as pi
 
 
 class InstallBase(unittest.TestCase):
@@ -144,7 +144,7 @@ class UninstallAndStatusTests(InstallBase):
 class CliTests(InstallBase):
     def run_cli(self, *args):
         return subprocess.run(
-            ["uv", "run", "--no-project", str(REPO / "scripts" / "pastey_install.py"), *args],
+            ["uv", "run", "--no-project", str(REPO / "install.py"), *args],
             capture_output=True, text=True, timeout=120,
         )
 

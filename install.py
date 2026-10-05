@@ -6,9 +6,9 @@
 Copies the skill into <claude-dir>/skills/pastey and merges the PostToolUse hook into
 <claude-dir>/settings.json. Safe to re-run; `uninstall` removes only what it added.
 
-    uv run scripts/pastey_install.py install [--project DIR | --claude-dir DIR]
-    uv run scripts/pastey_install.py status
-    uv run scripts/pastey_install.py uninstall
+    uv run install.py install [--project DIR | --claude-dir DIR]
+    uv run install.py status
+    uv run install.py uninstall
 """
 import argparse
 import json
@@ -17,7 +17,7 @@ import shutil
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parent
 MATCHER = "Write|Edit|MultiEdit"
 MARKER = "pastey_open.py"
 
