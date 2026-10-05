@@ -16,13 +16,17 @@ Claude Code who work alongside an editor.
 
 ## Capabilities
 
-Nothing is built yet. Intended scope (see the backlog for status):
+Built, awaiting verification in a real session (gate G01):
 
-- Open generated documents (specs, plans, any human-readable artifact file) in the
-  user's editor when they are written.
-- Surface generated copy/paste text (SQL, command lines, snippets) in the editor as well.
-- Respect the user's editor choice, defaulting to VS Code.
+- Opens documents Claude writes (`docs/**/*.md`, specs, plans, `README.md`) in the
+  user's editor when they are created, and on first edit per session.
+- Has Claude save copy/paste text (SQL, command lines, config) as numbered, highlighted
+  files in `snippets/`, which open the same way.
+- Editor is configurable (default VS Code); what opens is an allowlist, tunable per
+  user and per project in `.pastey.toml`. Generated files and HTML do not open by default.
 
 ## Non-goals
 
-To be settled during design; recorded in [Decisions](decisions.md) as they are made.
+- Opening source code or generated files by default.
+- Detecting open or closed editor tabs.
+- Opening text that never becomes a file, other than through the snippet convention.

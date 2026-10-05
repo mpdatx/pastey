@@ -62,6 +62,9 @@ img,svg{max-width:100%}
 <h2>Plans</h2><ul>
 <li><a href="superpowers/plans/2026-10-04-pastey-plugin.html">pastey plugin implementation plan</a></li>
 </ul>
+<h2>Repository</h2><ul>
+<li><a href="extra/README.html">pastey</a></li>
+</ul>
 <ul class="continued">
 <li><a href="backlog-archive.html">Backlog archive</a></li>
 <li><a href="gates-archive.html">Gates archive</a></li>
@@ -70,7 +73,7 @@ img,svg{max-width:100%}
 <main>
 <h1>Decisions</h1>
 <p class="summary">Why things are the way they are. Records are never rewritten; superseded ones are marked.</p>
-<details class="toc"><summary>On this page</summary><ul><li class="l2"><a href="#d01-open-files-with-a-hook-not-skill-instructions">D01. Open files with a hook, not skill instructions</a></li><li class="l2"><a href="#d02-allowlist-and-no-html-by-default">D02. Allowlist, and no HTML by default</a></li><li class="l2"><a href="#d03-snippets-are-numbered-project-files">D03. Snippets are numbered project files</a></li><li class="l2"><a href="#d04-re-open-on-edit-approximated-by-a-session-record">D04. Re-open on edit approximated by a session record</a></li></ul></details>
+<details class="toc"><summary>On this page</summary><ul><li class="l2"><a href="#d01-open-files-with-a-hook-not-skill-instructions">D01. Open files with a hook, not skill instructions</a></li><li class="l2"><a href="#d02-allowlist-and-no-html-by-default">D02. Allowlist, and no HTML by default</a></li><li class="l2"><a href="#d03-snippets-are-numbered-project-files">D03. Snippets are numbered project files</a></li><li class="l2"><a href="#d04-re-open-on-edit-approximated-by-a-session-record">D04. Re-open on edit approximated by a session record</a></li><li class="l2"><a href="#d05-config-lists-are-additive-across-layers">D05. Config lists are additive across layers</a></li></ul></details>
 
 <p>Each record is <code>## Dnn. Title</code> followed by <strong>Context</strong>, <strong>Decision</strong>, <strong>Why</strong> and
 <strong>Consequences</strong> paragraphs. When a decision is reversed, add <code>Status: superseded by Dmm</code>
@@ -99,6 +102,11 @@ specs, plans); deny generated files. HTML is not allowed by default (user's call
 <strong>Decision:</strong> Open on create; on edit, open only if not yet opened this session.
 <strong>Why:</strong> Avoids stealing focus on every edit.
 <strong>Consequences:</strong> A tab closed mid-session stays closed until the next session.</p>
+<h2 id="d05-config-lists-are-additive-across-layers">D05. Config lists are additive across layers</h2>
+<p><strong>Context:</strong> The spec said config is &quot;layered&quot; without saying how lists combine.
+<strong>Decision:</strong> <code>editor</code>/<code>editor_args</code> override; <code>allow</code> and <code>deny</code> accumulate across defaults, user and project.
+<strong>Why:</strong> A project opting in to HTML should not have to repeat every default glob.
+<strong>Consequences:</strong> A project cannot remove a default allow; it can only deny it.</p>
 
 </main>
 </div>

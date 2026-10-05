@@ -8,9 +8,18 @@ order: 20
 
 ## Overview
 
-Not designed yet. The deliverable is a Claude Code skill (instructions Claude follows,
-possibly with helper scripts or hooks) that opens output in the user's editor. The
-design will be brainstormed and recorded as a spec under `docs/superpowers/specs/`.
+pastey is a Claude Code plugin with one opening mechanism. When Claude writes a file
+(`Write`, `Edit`, `MultiEdit`), a `PostToolUse` hook runs the opener, which checks the
+path against allow/deny globs and launches the editor. Pasteable text that would
+otherwise exist only in chat reaches the same path through the skill, which has Claude
+save it as `snippets/NNNN-name.<ext>`; the hook then opens it like any other file.
+
+```
+Claude writes file ──▶ PostToolUse hook ──▶ pastey_open.py ──▶ editor CLI
+Claude has copy/paste text ──▶ skill ──▶ writes snippets/NNNN-….ext ──▶ (same hook)
+```
+
+Design: [pastey design spec](superpowers/specs/2026-10-04-pastey-design.md).
 
 ## Components
 
@@ -39,8 +48,20 @@ The plugin is named `pastey`. `hooks.json` registers one `PostToolUse` hook on
 `Write|Edit|MultiEdit` that runs `uv run --no-project ${CLAUDE_PLUGIN_ROOT}/scripts/pastey_open.py`
 under bash. The script's PEP 723 header requires Python 3.11+, which `uv` provides.
 
+### Skill (`skills/pastey/SKILL.md`)
+
+Instructions only, no code. It tells Claude when copy/paste text deserves a snippet file,
+how to pick the next 4-digit number from `snippets/`, how to name it
+(`NNNN-what-it-does.<ext>`, extension chosen for syntax highlighting), to use `Write` so
+the hook sees it, to never overwrite earlier snippets, and to say which file it wrote.
+
 ## Code pointers
 
 | Area | Where |
 |---|---|
-| Skill and helpers | `skills/` (planned) |
+| Opener, glob matching, config loading | `scripts/pastey_open.py` |
+| Default editor, allow and deny globs | `config/defaults.toml` |
+| Hook registration | `hooks/hooks.json` |
+| Plugin manifest | `.claude-plugin/plugin.json` |
+| Snippet convention | `skills/pastey/SKILL.md` |
+| Tests (unit, end-to-end with a stub editor) | `tests/` |

@@ -62,6 +62,9 @@ img,svg{max-width:100%}
 <h2>Plans</h2><ul>
 <li><a href="superpowers/plans/2026-10-04-pastey-plugin.html">pastey plugin implementation plan</a></li>
 </ul>
+<h2>Repository</h2><ul>
+<li><a href="extra/README.html">pastey</a></li>
+</ul>
 <ul class="continued">
 <li><a href="backlog-archive.html">Backlog archive</a></li>
 <li><a href="gates-archive.html">Gates archive</a></li>
@@ -70,12 +73,18 @@ img,svg{max-width:100%}
 <main>
 <h1>Architecture</h1>
 <p class="summary">How the pieces fit together, and where each lives in the code.</p>
-<details class="toc"><summary>On this page</summary><ul><li class="l2"><a href="#overview">Overview</a></li><li class="l2"><a href="#components">Components</a></li><li class="l3"><a href="#matching-and-config-scriptspastey_openpy-configdefaultstoml">Matching and config (scripts/pasteyopen.py, config/defaults.toml)</a></li><li class="l3"><a href="#opener-scriptspastey_openpy">Opener (scripts/pasteyopen.py)</a></li><li class="l3"><a href="#plugin-wiring-claude-pluginpluginjson-hookshooksjson">Plugin wiring (.claude-plugin/plugin.json, hooks/hooks.json)</a></li><li class="l2"><a href="#code-pointers">Code pointers</a></li></ul></details>
+<details class="toc"><summary>On this page</summary><ul><li class="l2"><a href="#overview">Overview</a></li><li class="l2"><a href="#components">Components</a></li><li class="l3"><a href="#matching-and-config-scriptspastey_openpy-configdefaultstoml">Matching and config (scripts/pasteyopen.py, config/defaults.toml)</a></li><li class="l3"><a href="#opener-scriptspastey_openpy">Opener (scripts/pasteyopen.py)</a></li><li class="l3"><a href="#plugin-wiring-claude-pluginpluginjson-hookshooksjson">Plugin wiring (.claude-plugin/plugin.json, hooks/hooks.json)</a></li><li class="l3"><a href="#skill-skillspasteyskillmd">Skill (skills/pastey/SKILL.md)</a></li><li class="l2"><a href="#code-pointers">Code pointers</a></li></ul></details>
 
 <h2 id="overview">Overview</h2>
-<p>Not designed yet. The deliverable is a Claude Code skill (instructions Claude follows,
-possibly with helper scripts or hooks) that opens output in the user's editor. The
-design will be brainstormed and recorded as a spec under <code>docs/superpowers/specs/</code>.</p>
+<p>pastey is a Claude Code plugin with one opening mechanism. When Claude writes a file
+(<code>Write</code>, <code>Edit</code>, <code>MultiEdit</code>), a <code>PostToolUse</code> hook runs the opener, which checks the
+path against allow/deny globs and launches the editor. Pasteable text that would
+otherwise exist only in chat reaches the same path through the skill, which has Claude
+save it as <code>snippets/NNNN-name.&lt;ext&gt;</code>; the hook then opens it like any other file.</p>
+<pre><code>Claude writes file ──▶ PostToolUse hook ──▶ pastey_open.py ──▶ editor CLI
+Claude has copy/paste text ──▶ skill ──▶ writes snippets/NNNN-….ext ──▶ (same hook)
+</code></pre>
+<p>Design: <a href="superpowers/specs/2026-10-04-pastey-design.html">pastey design spec</a>.</p>
 <h2 id="components">Components</h2>
 <h3 id="matching-and-config-scriptspastey_openpy-configdefaultstoml">Matching and config (<code>scripts/pastey_open.py</code>, <code>config/defaults.toml</code>)</h3>
 <p><code>matches(rel, globs)</code> implements <code>**</code>, <code>*</code> and <code>?</code> globs anchored at the project root
@@ -96,6 +105,11 @@ errors go to <code>%TEMP%\pastey\pastey.log</code>. Set <code>PASTEY_DEBUG=1</co
 <p>The plugin is named <code>pastey</code>. <code>hooks.json</code> registers one <code>PostToolUse</code> hook on
 <code>Write|Edit|MultiEdit</code> that runs <code>uv run --no-project ${CLAUDE_PLUGIN_ROOT}/scripts/pastey_open.py</code>
 under bash. The script's PEP 723 header requires Python 3.11+, which <code>uv</code> provides.</p>
+<h3 id="skill-skillspasteyskillmd">Skill (<code>skills/pastey/SKILL.md</code>)</h3>
+<p>Instructions only, no code. It tells Claude when copy/paste text deserves a snippet file,
+how to pick the next 4-digit number from <code>snippets/</code>, how to name it
+(<code>NNNN-what-it-does.&lt;ext&gt;</code>, extension chosen for syntax highlighting), to use <code>Write</code> so
+the hook sees it, to never overwrite earlier snippets, and to say which file it wrote.</p>
 <h2 id="code-pointers">Code pointers</h2>
 <table>
 <thead>
@@ -106,8 +120,28 @@ under bash. The script's PEP 723 header requires Python 3.11+, which <code>uv</c
 </thead>
 <tbody>
 <tr>
-<td>Skill and helpers</td>
-<td><code>skills/</code> (planned)</td>
+<td>Opener, glob matching, config loading</td>
+<td><code>scripts/pastey_open.py</code></td>
+</tr>
+<tr>
+<td>Default editor, allow and deny globs</td>
+<td><code>config/defaults.toml</code></td>
+</tr>
+<tr>
+<td>Hook registration</td>
+<td><code>hooks/hooks.json</code></td>
+</tr>
+<tr>
+<td>Plugin manifest</td>
+<td><code>.claude-plugin/plugin.json</code></td>
+</tr>
+<tr>
+<td>Snippet convention</td>
+<td><code>skills/pastey/SKILL.md</code></td>
+</tr>
+<tr>
+<td>Tests (unit, end-to-end with a stub editor)</td>
+<td><code>tests/</code></td>
 </tr>
 </tbody>
 </table>

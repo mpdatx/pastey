@@ -41,3 +41,10 @@ specs, plans); deny generated files. HTML is not allowed by default (user's call
 **Decision:** Open on create; on edit, open only if not yet opened this session.
 **Why:** Avoids stealing focus on every edit.
 **Consequences:** A tab closed mid-session stays closed until the next session.
+
+## D05. Config lists are additive across layers
+
+**Context:** The spec said config is "layered" without saying how lists combine.
+**Decision:** `editor`/`editor_args` override; `allow` and `deny` accumulate across defaults, user and project.
+**Why:** A project opting in to HTML should not have to repeat every default glob.
+**Consequences:** A project cannot remove a default allow; it can only deny it.

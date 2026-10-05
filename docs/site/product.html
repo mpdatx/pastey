@@ -62,6 +62,9 @@ img,svg{max-width:100%}
 <h2>Plans</h2><ul>
 <li><a href="superpowers/plans/2026-10-04-pastey-plugin.html">pastey plugin implementation plan</a></li>
 </ul>
+<h2>Repository</h2><ul>
+<li><a href="extra/README.html">pastey</a></li>
+</ul>
 <ul class="continued">
 <li><a href="backlog-archive.html">Backlog archive</a></li>
 <li><a href="gates-archive.html">Gates archive</a></li>
@@ -79,15 +82,21 @@ go find. pastey makes Claude surface that output in the user's editor of choice 
 VS Code) automatically, so reading and copy/pasting it is one step. It is for users of
 Claude Code who work alongside an editor.</p>
 <h2 id="capabilities">Capabilities</h2>
-<p>Nothing is built yet. Intended scope (see the backlog for status):</p>
+<p>Built, awaiting verification in a real session (gate G01):</p>
 <ul>
-<li>Open generated documents (specs, plans, any human-readable artifact file) in the
-user's editor when they are written.</li>
-<li>Surface generated copy/paste text (SQL, command lines, snippets) in the editor as well.</li>
-<li>Respect the user's editor choice, defaulting to VS Code.</li>
+<li>Opens documents Claude writes (<code>docs/**/*.md</code>, specs, plans, <code>README.md</code>) in the
+user's editor when they are created, and on first edit per session.</li>
+<li>Has Claude save copy/paste text (SQL, command lines, config) as numbered, highlighted
+files in <code>snippets/</code>, which open the same way.</li>
+<li>Editor is configurable (default VS Code); what opens is an allowlist, tunable per
+user and per project in <code>.pastey.toml</code>. Generated files and HTML do not open by default.</li>
 </ul>
 <h2 id="non-goals">Non-goals</h2>
-<p>To be settled during design; recorded in <a href="decisions.html">Decisions</a> as they are made.</p>
+<ul>
+<li>Opening source code or generated files by default.</li>
+<li>Detecting open or closed editor tabs.</li>
+<li>Opening text that never becomes a file, other than through the snippet convention.</li>
+</ul>
 
 </main>
 </div>

@@ -10,7 +10,7 @@ pastey is a Claude Code skill that automatically opens the human-readable things
 produces — spec and plan documents, any artifact written to a readable file, and generated
 text meant to be copied elsewhere (SQL queries, command lines) — in the user's editor of
 choice, usually VS Code, so the user never has to hunt for them in the terminal. Current
-state: project scaffolded; the design has not been brainstormed yet.
+state: the plugin is implemented and tested; it awaits a real-session check (gate G01).
 
 ## What to read when
 
