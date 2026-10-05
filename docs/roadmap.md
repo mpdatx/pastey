@@ -10,7 +10,7 @@ order: 5
 
 ## Waiting on you
 
-Nothing is waiting on you.
+- **G02** [Does the manual (non-plugin) install work in a real session?](gates.md#g02-does-the-manual-non-plugin-install-work-in-a-real-session) — needs: Plugin NOT loaded with `--plugin-dir`; no other pastey hook registered · asked 2026-10-05
 
 ## Initiatives
 

@@ -24,3 +24,15 @@ to it by ID rather than restating it. Answered and dropped gates move to the
 `Status` (waiting, answered, dropped) and `Asked` are required. To retract a verdict, add
 a new dated line saying what is withdrawn and set the gate back to `waiting`; never edit
 an old verdict.
+
+## G02. Does the manual (non-plugin) install work in a real session?
+Status: waiting · Asked: 2026-10-05 · Needs: Plugin NOT loaded with `--plugin-dir`; no other pastey hook registered
+
+Setup: from the repo run `uv run scripts/pastey_install.py install --project <a scratch project>`,
+then start `claude` in that project (restart if it was already open) in manual or
+`accept edits` mode. Ask Claude to write a short spec under `docs/` and to give you an SQL
+query to copy. Then run `uv run scripts/pastey_install.py uninstall --project <same project>`.
+Passes if: the spec and the numbered `snippets/NNNN-*.sql` open in VS Code with no plugin
+loaded; `status` shows hook and skill installed before uninstall; after uninstall,
+`.claude/settings.json` holds only what it held before and a new write does not open.
+Evidence: `<project>/.claude/settings.json`, `settings.json.pastey.bak`, `%TEMP%\pastey\pastey.log`.
