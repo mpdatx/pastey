@@ -56,6 +56,9 @@ img,svg{max-width:100%}
 <li><a href="architecture.html">Architecture</a></li>
 <li><a href="decisions.html" aria-current="page">Decisions</a></li>
 </ul>
+<h2>Specs</h2><ul>
+<li><a href="superpowers/specs/2026-10-04-pastey-design.html">pastey design</a></li>
+</ul>
 <ul class="continued">
 <li><a href="backlog-archive.html">Backlog archive</a></li>
 <li><a href="gates-archive.html">Gates archive</a></li>
@@ -64,11 +67,35 @@ img,svg{max-width:100%}
 <main>
 <h1>Decisions</h1>
 <p class="summary">Why things are the way they are. Records are never rewritten; superseded ones are marked.</p>
+<details class="toc"><summary>On this page</summary><ul><li class="l2"><a href="#d01-open-files-with-a-hook-not-skill-instructions">D01. Open files with a hook, not skill instructions</a></li><li class="l2"><a href="#d02-allowlist-and-no-html-by-default">D02. Allowlist, and no HTML by default</a></li><li class="l2"><a href="#d03-snippets-are-numbered-project-files">D03. Snippets are numbered project files</a></li><li class="l2"><a href="#d04-re-open-on-edit-approximated-by-a-session-record">D04. Re-open on edit approximated by a session record</a></li></ul></details>
 
 <p>Each record is <code>## Dnn. Title</code> followed by <strong>Context</strong>, <strong>Decision</strong>, <strong>Why</strong> and
 <strong>Consequences</strong> paragraphs. When a decision is reversed, add <code>Status: superseded by Dmm</code>
 directly under its heading and write the new record; do not edit the old text. IDs are
 never reused.</p>
+<h2 id="d01-open-files-with-a-hook-not-skill-instructions">D01. Open files with a hook, not skill instructions</h2>
+<p><strong>Context:</strong> Output must open automatically; Claude is unreliable at remembering to.
+<strong>Decision:</strong> A <code>PostToolUse</code> hook on <code>Write|Edit</code> opens allowlisted files. Pasteable
+text is saved as a snippet file so the same hook opens it.
+<strong>Why:</strong> Deterministic for files; one mechanism for both output kinds.
+<strong>Consequences:</strong> Only text that becomes a file is opened; Claude must choose to write
+snippets.</p>
+<h2 id="d02-allowlist-and-no-html-by-default">D02. Allowlist, and no HTML by default</h2>
+<p><strong>Context:</strong> Claude writes many files, and source code must never pop open.
+<strong>Decision:</strong> Open only files matching an allow glob (docs markdown, snippets, README,
+specs, plans); deny generated files. HTML is not allowed by default (user's call).
+<strong>Why:</strong> Predictable, tunable per project.
+<strong>Consequences:</strong> Projects wanting HTML opened add it in <code>.pastey.toml</code>.</p>
+<h2 id="d03-snippets-are-numbered-project-files">D03. Snippets are numbered project files</h2>
+<p><strong>Context:</strong> Copy/paste text needs a home that supports highlighting and history.
+<strong>Decision:</strong> <code>snippets/NNNN-meaningful-name.&lt;ext&gt;</code> inside the project, kept.
+<strong>Why:</strong> User wants history and the snippets are useful artifacts (user's call).
+<strong>Consequences:</strong> <code>snippets/</code> grows; projects may gitignore it if they prefer.</p>
+<h2 id="d04-re-open-on-edit-approximated-by-a-session-record">D04. Re-open on edit approximated by a session record</h2>
+<p><strong>Context:</strong> The editor CLI cannot report which tabs are open.
+<strong>Decision:</strong> Open on create; on edit, open only if not yet opened this session.
+<strong>Why:</strong> Avoids stealing focus on every edit.
+<strong>Consequences:</strong> A tab closed mid-session stays closed until the next session.</p>
 
 </main>
 </div>

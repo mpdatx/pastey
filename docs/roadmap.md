@@ -14,11 +14,15 @@ Nothing is waiting on you.
 
 ## Initiatives
 
-No specs yet.
+| Spec | Status | Plans | Backlog |
+|---|---|---|---|
+| [pastey design](superpowers/specs/2026-10-04-pastey-design.md) | draft | — | B01 |
 
 ## Backlog
 
-Nothing open.
+### Open
+
+- **B01** [Build the pastey plugin](backlog.md#b01-build-the-pastey-plugin) — [spec](superpowers/specs/2026-10-04-pastey-design.md)
 
 Closed items: none yet.
 
