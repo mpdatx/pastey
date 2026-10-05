@@ -91,7 +91,9 @@ checks the written path against allow/deny globs and launches your editor. A new
 created file always opens; a file edited later opens only if it has not been opened yet
 this session. Source code never opens unless you allow it.</p>
 <h2 id="install-development">Install (development)</h2>
-<p>Requires <a href="https://docs.astral.sh/uv/">uv</a> and an editor CLI on PATH (<code>code</code> for VS Code).</p>
+<p>Requires <a href="https://docs.astral.sh/uv/">uv</a> and an editor CLI on PATH (<code>code</code> for VS Code).
+The opener needs Python 3.11+; if none is installed, uv downloads one the first time the
+hook runs, so that first write can be slow.</p>
 <pre><code>claude --plugin-dir G:\claude\pastey
 </code></pre>
 <h2 id="using-pastey">Using pastey</h2>
@@ -124,6 +126,9 @@ editor_args = [&quot;-r&quot;]           # reuse the current window
 allow = [&quot;reports/**/*.html&quot;]  # HTML is not opened by default
 deny = [&quot;docs/drafts/**&quot;]
 </code></pre>
+<p>Globs are relative to the project root and support <code>**</code> (any depth), <code>*</code> (within one
+folder) and <code>?</code>. <code>\</code> is read as <code>/</code> and a leading <code>./</code> is ignored; <code>[abc]</code> sets are not
+supported.</p>
 <p>Defaults: allow <code>docs/**/*.md</code>, <code>docs/superpowers/**</code>, <code>snippets/**</code>, <code>README.md</code>; deny
 <code>docs/site/**</code>, <code>docs/roadmap.md</code>. Deny wins over allow.</p>
 <h2 id="limitations">Limitations</h2>

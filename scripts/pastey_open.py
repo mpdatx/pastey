@@ -19,7 +19,13 @@ _RE_FLAGS = re.IGNORECASE if os.name == "nt" else 0
 
 
 def glob_to_regex(glob):
-    """Translate a project-relative glob (`**`, `*`, `?`) into an anchored regex."""
+    """Translate a project-relative glob (`**`, `*`, `?`) into an anchored regex.
+
+    Backslashes are read as `/` and a leading `./` is dropped; `[abc]` sets are not supported.
+    """
+    glob = glob.replace("\\", "/")
+    while glob.startswith("./"):
+        glob = glob[2:]
     out = []
     i = 0
     while i < len(glob):
@@ -86,19 +92,36 @@ def state_dir(env):
     return Path(env.get("PASTEY_STATE_DIR") or Path(tempfile.gettempdir()) / "pastey")
 
 
+MAX_LOG_BYTES = 1_000_000
+SESSION_TTL_DAYS = 7
+
+
 def log(state, msg):
     try:
         state.mkdir(parents=True, exist_ok=True)
-        with open(state / "pastey.log", "a", encoding="utf-8") as f:
+        log_file = state / "pastey.log"
+        if log_file.exists() and log_file.stat().st_size > MAX_LOG_BYTES:
+            os.replace(log_file, state / "pastey.log.1")  # keep one previous log
+        with open(log_file, "a", encoding="utf-8") as f:
             f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} {msg}\n")
     except OSError:
         pass
 
 
 def relative_path(abs_path, root):
-    """POSIX path of abs_path relative to root, or None if it is outside root."""
+    """POSIX path of abs_path relative to root, or None if it is outside root.
+
+    The path as written is tried first (so a symlinked folder inside the project still
+    counts as inside it); the fully resolved path is the fallback.
+    """
+    path = Path(os.path.abspath(abs_path))
+    for base in (Path(os.path.abspath(root)), Path(root).resolve()):
+        try:
+            return path.relative_to(base).as_posix()
+        except ValueError:
+            pass
     try:
-        return Path(abs_path).relative_to(Path(root).resolve()).as_posix()
+        return path.resolve().relative_to(Path(root).resolve()).as_posix()
     except ValueError:
         return None
 
@@ -122,6 +145,17 @@ def save_record(state, session_id, opened):
     tmp = target.with_name(f"{target.name}.{os.getpid()}.tmp")
     tmp.write_text(json.dumps(sorted(opened)), encoding="utf-8")
     os.replace(tmp, target)
+    _prune_old_records(state, keep=target)
+
+
+def _prune_old_records(state, keep):
+    cutoff = time.time() - SESSION_TTL_DAYS * 86400
+    for old in state.glob("session-*.json"):
+        try:
+            if old != keep and old.stat().st_mtime < cutoff:
+                old.unlink()
+        except OSError:
+            pass
 
 
 _CMD_UNSAFE = set('&|<>^%"')
@@ -168,13 +202,16 @@ def handle(payload, env=os.environ, popen=subprocess.Popen):
         Path(root) / ".pastey.toml",
         on_error=lambda p, e: log(state, f"config {p} ignored: {e!r}"),
     )
-    abs_path = Path(file_path).resolve()
+    abs_path = Path(file_path)
+    if not abs_path.is_absolute():
+        abs_path = Path(root) / abs_path
+    abs_path = Path(os.path.abspath(abs_path))
     rel = relative_path(abs_path, root)
     if rel is None or matches(rel, cfg["deny"]) or not matches(rel, cfg["allow"]):
         return False
     session_id = payload.get("session_id", "")
     opened = load_record(state, session_id)
-    key = abs_path.as_posix()
+    key = os.path.normcase(str(abs_path))
     if key in opened and not _is_create(payload):
         return False
     launch(cfg, abs_path, popen)

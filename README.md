@@ -19,6 +19,8 @@ this session. Source code never opens unless you allow it.
 ## Install (development)
 
 Requires [uv](https://docs.astral.sh/uv/) and an editor CLI on PATH (`code` for VS Code).
+The opener needs Python 3.11+; if none is installed, uv downloads one the first time the
+hook runs, so that first write can be slow.
 
 ```
 claude --plugin-dir G:\claude\pastey
@@ -60,6 +62,10 @@ editor_args = ["-r"]           # reuse the current window
 allow = ["reports/**/*.html"]  # HTML is not opened by default
 deny = ["docs/drafts/**"]
 ```
+
+Globs are relative to the project root and support `**` (any depth), `*` (within one
+folder) and `?`. `\` is read as `/` and a leading `./` is ignored; `[abc]` sets are not
+supported.
 
 Defaults: allow `docs/**/*.md`, `docs/superpowers/**`, `snippets/**`, `README.md`; deny
 `docs/site/**`, `docs/roadmap.md`. Deny wins over allow.

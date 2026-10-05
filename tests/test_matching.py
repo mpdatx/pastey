@@ -33,6 +33,10 @@ class GlobTests(unittest.TestCase):
         self.assertTrue(po.matches("a1.md", ["a?.md"]))
         self.assertFalse(po.matches("a/.md", ["a?.md"]))
 
+    def test_backslash_and_dot_slash_patterns_are_normalized(self):
+        self.assertTrue(po.matches("docs/a/b.md", ["docs\\**\\*.md"]))
+        self.assertTrue(po.matches("README.md", ["./README.md"]))
+
     def test_regex_metacharacters_are_literal(self):
         self.assertTrue(po.matches("a+b.md", ["a+b.md"]))
         self.assertFalse(po.matches("aab.md", ["a+b.md"]))

@@ -36,11 +36,24 @@ layer is skipped and reported through `on_error`.
 `main()` reads the hook JSON on stdin and calls `handle()`, which resolves the written
 path against `$CLAUDE_PROJECT_DIR` (else the payload `cwd`), applies deny-then-allow,
 consults the per-session record (`%TEMP%\pastey\session-<id>.json`, atomic writes) and
-launches `<editor> <editor_args> <path>` detached. A `Write` whose `tool_response.type`
+launches `<editor> <editor_args> <path>` without waiting for it (its stdio is discarded;
+it is not otherwise detached from the hook's process). A `Write` whose `tool_response.type`
 is `create` always opens; other writes open once per session. `main()` always returns 0;
 errors go to `%TEMP%\pastey\pastey.log`. Set `PASTEY_DEBUG=1` to log each raw payload.
 `PASTEY_STATE_DIR` and `PASTEY_USER_CONFIG` relocate the state directory and user config
 (used by the tests).
+
+Paths and housekeeping:
+
+- A relative `file_path` resolves against the project root, not the hook's working
+  directory. A path is matched as written first, so a symlinked `docs/` or `snippets/`
+  that points outside the project still counts as inside it; the fully resolved path is
+  the fallback. The session-record key is `os.path.normcase`d, so on Windows `DOCS/A.md`
+  and `docs/a.md` are one file.
+- Session records older than 7 days are deleted whenever a record is saved. `pastey.log`
+  is rotated to `pastey.log.1` once it passes 1 MB (one previous log is kept).
+- Globs read `\` as `/` and drop a leading `./`; `[abc]` sets are not supported.
+- `"shell": "bash"` in `hooks.json` was confirmed working in a real session (G01).
 
 Three Windows-driven safeguards, each found by review and pinned by a test:
 

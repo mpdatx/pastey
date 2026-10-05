@@ -50,14 +50,15 @@ class EndToEndTests(unittest.TestCase):
             STUB_LOG=str(self.stub_log),
         )
 
-    def pipe(self, rel):
+    def pipe(self, rel, tool="Write", created=True):
         payload = {
-            "tool_name": "Write",
+            "tool_name": tool,
             "session_id": "e2e",
             "cwd": str(self.root),
             "tool_input": {"file_path": str(self.root / rel)},
-            "tool_response": {"type": "create"},
         }
+        if created:
+            payload["tool_response"] = {"type": "create"}
         # Claude Code sends UTF-8 JSON; send real bytes so a locale-decoded stdin is caught.
         return subprocess.run(
             ["uv", "run", "--no-project", str(SCRIPT)],
@@ -86,6 +87,18 @@ class EndToEndTests(unittest.TestCase):
         result = self.pipe("snippets/0002-café query.sql")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("0002-café query.sql", self.wait_for_log())
+
+    def test_edit_opens_once_across_separate_processes(self):
+        self.pipe("docs/a.md", tool="Edit", created=False)
+        self.wait_for_log()
+        self.pipe("docs/a.md", tool="Edit", created=False)
+        time.sleep(1)
+        self.assertEqual(len(self.stub_log.read_text(encoding="utf-8").splitlines()), 1)
+
+    def test_multiedit_opens_file(self):
+        result = self.pipe("docs/b.md", tool="MultiEdit", created=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("b.md", self.wait_for_log())
 
     def test_denied_path_does_not_launch_editor(self):
         result = self.pipe("src/app.py")

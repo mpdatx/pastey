@@ -3,6 +3,7 @@ import json
 import os
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -87,6 +88,21 @@ class OpenPolicyTests(Base):
     def test_windows_path_case_difference_still_matches(self):
         self.assertTrue(self.run_hook("Write", "DOCS/A.md", "create"))
 
+    def test_relative_file_path_resolves_against_project_root(self):
+        payload = self.payload("Write", "docs/a.md", {"type": "create"})
+        payload["tool_input"]["file_path"] = "docs/a.md"  # relative; process cwd is elsewhere
+        self.assertTrue(po.handle(payload, env=self.env, popen=self.popen))
+        self.assertIn(str(self.root), self.calls[0][2])
+
+    def test_symlinked_folder_pointing_outside_project_still_opens(self):
+        outside = self.base / "outside"
+        outside.mkdir()
+        try:
+            os.symlink(outside, self.root / "docs", target_is_directory=True)
+        except OSError:
+            self.skipTest("cannot create symlinks here")
+        self.assertTrue(self.run_hook("Write", "docs/a.md", "create"))
+
 
 class OpenOnceTests(Base):
     def test_edit_opens_once_per_session(self):
@@ -105,6 +121,11 @@ class OpenOnceTests(Base):
     def test_overwrite_of_opened_file_does_not_reopen(self):
         self.assertTrue(self.run_hook("Write", "docs/a.md", "create"))
         self.assertFalse(self.run_hook("Write", "docs/a.md", "update"))
+
+    @unittest.skipUnless(os.name == "nt", "Windows path case")
+    def test_case_variant_of_opened_file_does_not_reopen(self):
+        self.assertTrue(self.run_hook("Edit", "docs/a.md"))
+        self.assertFalse(self.run_hook("Edit", "DOCS/A.md"))
 
     def test_non_dict_tool_response_does_not_crash(self):
         payload = self.payload("Write", "docs/a.md", response="ok")
@@ -164,11 +185,36 @@ class FailureTests(Base):
     def test_main_survives_garbage_and_empty_stdin(self):
         self.assertEqual(self.run_main("not json"), 0)
         self.assertEqual(self.run_main(""), 0)
+        self.assertEqual(self.log_text().count("error"), 2)
+
+    def test_non_object_payload_is_logged_not_raised(self):
+        self.assertEqual(self.run_main("[]"), 0)
+        self.assertIn("error", self.log_text())
 
     def test_debug_env_logs_raw_payload(self):
         self.env["PASTEY_DEBUG"] = "1"
         self.run_main(json.dumps(self.payload("Write", "src/app.py")))
         self.assertIn("payload:", self.log_text())
+
+
+class HousekeepingTests(Base):
+    def test_old_session_records_are_pruned(self):
+        self.state.mkdir()
+        old = self.state / "session-old.json"
+        old.write_text("[]", encoding="utf-8")
+        thirty_days_ago = time.time() - 30 * 86400
+        os.utime(old, (thirty_days_ago, thirty_days_ago))
+        self.run_hook("Write", "docs/a.md", "create")
+        self.assertFalse(old.exists())
+        self.assertTrue((self.state / "session-s1.json").exists())
+
+    def test_oversized_log_is_rotated(self):
+        self.state.mkdir()
+        (self.state / "pastey.log").write_text("x" * (po.MAX_LOG_BYTES + 1), encoding="utf-8")
+        po.log(self.state, "fresh")
+        self.assertTrue((self.state / "pastey.log.1").exists())
+        self.assertIn("fresh", self.log_text())
+        self.assertLess(len(self.log_text()), 1000)
 
 
 if __name__ == "__main__":

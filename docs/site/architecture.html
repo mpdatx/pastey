@@ -96,11 +96,24 @@ layer is skipped and reported through <code>on_error</code>.</p>
 <p><code>main()</code> reads the hook JSON on stdin and calls <code>handle()</code>, which resolves the written
 path against <code>$CLAUDE_PROJECT_DIR</code> (else the payload <code>cwd</code>), applies deny-then-allow,
 consults the per-session record (<code>%TEMP%\pastey\session-&lt;id&gt;.json</code>, atomic writes) and
-launches <code>&lt;editor&gt; &lt;editor_args&gt; &lt;path&gt;</code> detached. A <code>Write</code> whose <code>tool_response.type</code>
+launches <code>&lt;editor&gt; &lt;editor_args&gt; &lt;path&gt;</code> without waiting for it (its stdio is discarded;
+it is not otherwise detached from the hook's process). A <code>Write</code> whose <code>tool_response.type</code>
 is <code>create</code> always opens; other writes open once per session. <code>main()</code> always returns 0;
 errors go to <code>%TEMP%\pastey\pastey.log</code>. Set <code>PASTEY_DEBUG=1</code> to log each raw payload.
 <code>PASTEY_STATE_DIR</code> and <code>PASTEY_USER_CONFIG</code> relocate the state directory and user config
 (used by the tests).</p>
+<p>Paths and housekeeping:</p>
+<ul>
+<li>A relative <code>file_path</code> resolves against the project root, not the hook's working
+directory. A path is matched as written first, so a symlinked <code>docs/</code> or <code>snippets/</code>
+that points outside the project still counts as inside it; the fully resolved path is
+the fallback. The session-record key is <code>os.path.normcase</code>d, so on Windows <code>DOCS/A.md</code>
+and <code>docs/a.md</code> are one file.</li>
+<li>Session records older than 7 days are deleted whenever a record is saved. <code>pastey.log</code>
+is rotated to <code>pastey.log.1</code> once it passes 1 MB (one previous log is kept).</li>
+<li>Globs read <code>\</code> as <code>/</code> and drop a leading <code>./</code>; <code>[abc]</code> sets are not supported.</li>
+<li><code>&quot;shell&quot;: &quot;bash&quot;</code> in <code>hooks.json</code> was confirmed working in a real session (G01).</li>
+</ul>
 <p>Three Windows-driven safeguards, each found by review and pinned by a test:</p>
 <ul>
 <li>Hook stdin is read as bytes and decoded as UTF-8, not with the locale encoding, so
