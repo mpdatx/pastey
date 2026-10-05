@@ -24,6 +24,31 @@ Requires [uv](https://docs.astral.sh/uv/) and an editor CLI on PATH (`code` for 
 claude --plugin-dir G:\claude\pastey
 ```
 
+## Using pastey
+
+**Pick a permission mode where writes can happen.** pastey reacts to files Claude writes,
+so the write has to go through first. pastey was verified in manual permission mode
+(you approve writes), and `accept edits` mode does the same without prompting. In an
+auto-mode session a write was blocked once before reaching the hook, because auto mode's
+safety classifier gave no verdict on it, so no file existed to open. That is Claude Code's
+check, not pastey's. If writes are blocked, switch modes (Shift+Tab) and ask again.
+
+**Documents open on their own.** Ask for a spec, plan or other Markdown under `docs/`, or
+edit `README.md`, and it opens in your editor when written. You do nothing.
+
+**Snippets need a nudge only if Claude forgets.** The `pastey` skill has Claude save SQL,
+commands and similar text as `snippets/NNNN-name.<ext>` when you ask for something to
+copy. If it just prints the text in chat, say "save that as a snippet" and it will.
+Snippets are real project files: they are kept, numbered, and may be committed, so
+never ask for secrets in them. Add `snippets/` to `.gitignore` if you don't want them in git.
+
+**If nothing opens, check in this order:**
+1. Is the editor CLI on PATH? Run `code --version` (or your editor's equivalent).
+2. Did the write happen at all? A blocked or declined write never reaches the hook.
+3. Does the path match the allow list, and not the deny list? See Configure below.
+4. Read `%TEMP%\pastey\pastey.log`. Start Claude with `PASTEY_DEBUG=1` to also log each
+   raw hook payload.
+
 ## Configure
 
 Layers, later wins: plugin defaults, then `~/.pastey.toml`, then `<project>/.pastey.toml`.

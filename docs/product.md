@@ -16,7 +16,7 @@ Claude Code who work alongside an editor.
 
 ## Capabilities
 
-Built, awaiting verification in a real session (gate G01):
+Built and verified in a real session (G01):
 
 - Opens documents Claude writes (`docs/**/*.md`, specs, plans, `README.md`) in the
   user's editor when they are created, and on first edit per session.

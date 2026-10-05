@@ -120,7 +120,9 @@ under bash. The script's PEP 723 header requires Python 3.11+, which <code>uv</c
 <p>Instructions only, no code. It tells Claude when copy/paste text deserves a snippet file,
 how to pick the next 4-digit number from <code>snippets/</code>, how to name it
 (<code>NNNN-what-it-does.&lt;ext&gt;</code>, extension chosen for syntax highlighting), to use <code>Write</code> so
-the hook sees it, to never overwrite earlier snippets, and to say which file it wrote.</p>
+the hook sees it, to never overwrite earlier snippets, and to say which file it wrote.
+If the write is blocked (e.g. by the permission mode) it must say no file exists and fall
+back to printing the text; the hook can only react to writes that happen.</p>
 <h2 id="code-pointers">Code pointers</h2>
 <table>
 <thead>

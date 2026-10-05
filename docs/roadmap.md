@@ -10,7 +10,7 @@ order: 5
 
 ## Waiting on you
 
-- **G01** [Do a spec write and a snippet write each open in VS Code in a real session?](gates.md#g01-do-a-spec-write-and-a-snippet-write-each-open-in-vs-code-in-a-real-session) — needs: Plugin loaded with `claude --plugin-dir` · for: B01 · asked 2026-10-04
+Nothing is waiting on you.
 
 ## Initiatives
 
@@ -20,11 +20,9 @@ order: 5
 
 ## Backlog
 
-### Blocked
+Nothing open.
 
-- **B01** [Build the pastey plugin](backlog.md#b01-build-the-pastey-plugin) — [spec](superpowers/specs/2026-10-04-pastey-design.md)
-
-Closed items: none yet.
+Closed items: 1 in [the archive](backlog-archive.md).
 
 ## Inbox
 

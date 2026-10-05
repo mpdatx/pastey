@@ -65,6 +65,8 @@ Instructions only, no code. It tells Claude when copy/paste text deserves a snip
 how to pick the next 4-digit number from `snippets/`, how to name it
 (`NNNN-what-it-does.<ext>`, extension chosen for syntax highlighting), to use `Write` so
 the hook sees it, to never overwrite earlier snippets, and to say which file it wrote.
+If the write is blocked (e.g. by the permission mode) it must say no file exists and fall
+back to printing the text; the hook can only react to writes that happen.
 
 ## Code pointers
 

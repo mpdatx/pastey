@@ -74,7 +74,7 @@ img,svg{max-width:100%}
 <h1>pastey</h1>
 <p class="about">The repository&#x27;s README — its front page on the code host.</p>
 <p class="meta source">Source: <a href="../../../README.md"><code>README.md</code></a> — outside <code>docs/</code>, rendered here for reading.</p>
-<details class="toc"><summary>On this page</summary><ul><li class="l2"><a href="#how-it-works">How it works</a></li><li class="l2"><a href="#install-development">Install (development)</a></li><li class="l2"><a href="#configure">Configure</a></li><li class="l2"><a href="#limitations">Limitations</a></li></ul></details>
+<details class="toc"><summary>On this page</summary><ul><li class="l2"><a href="#how-it-works">How it works</a></li><li class="l2"><a href="#install-development">Install (development)</a></li><li class="l2"><a href="#using-pastey">Using pastey</a></li><li class="l2"><a href="#configure">Configure</a></li><li class="l2"><a href="#limitations">Limitations</a></li></ul></details>
 
 <p>A Claude Code plugin that automatically opens the things Claude produces for you to read
 or reuse in your editor (VS Code by default):</p>
@@ -94,6 +94,28 @@ this session. Source code never opens unless you allow it.</p>
 <p>Requires <a href="https://docs.astral.sh/uv/">uv</a> and an editor CLI on PATH (<code>code</code> for VS Code).</p>
 <pre><code>claude --plugin-dir G:\claude\pastey
 </code></pre>
+<h2 id="using-pastey">Using pastey</h2>
+<p><strong>Pick a permission mode where writes can happen.</strong> pastey reacts to files Claude writes,
+so the write has to go through first. pastey was verified in manual permission mode
+(you approve writes), and <code>accept edits</code> mode does the same without prompting. In an
+auto-mode session a write was blocked once before reaching the hook, because auto mode's
+safety classifier gave no verdict on it, so no file existed to open. That is Claude Code's
+check, not pastey's. If writes are blocked, switch modes (Shift+Tab) and ask again.</p>
+<p><strong>Documents open on their own.</strong> Ask for a spec, plan or other Markdown under <code>docs/</code>, or
+edit <code>README.md</code>, and it opens in your editor when written. You do nothing.</p>
+<p><strong>Snippets need a nudge only if Claude forgets.</strong> The <code>pastey</code> skill has Claude save SQL,
+commands and similar text as <code>snippets/NNNN-name.&lt;ext&gt;</code> when you ask for something to
+copy. If it just prints the text in chat, say &quot;save that as a snippet&quot; and it will.
+Snippets are real project files: they are kept, numbered, and may be committed, so
+never ask for secrets in them. Add <code>snippets/</code> to <code>.gitignore</code> if you don't want them in git.</p>
+<p><strong>If nothing opens, check in this order:</strong></p>
+<ol>
+<li>Is the editor CLI on PATH? Run <code>code --version</code> (or your editor's equivalent).</li>
+<li>Did the write happen at all? A blocked or declined write never reaches the hook.</li>
+<li>Does the path match the allow list, and not the deny list? See Configure below.</li>
+<li>Read <code>%TEMP%\pastey\pastey.log</code>. Start Claude with <code>PASTEY_DEBUG=1</code> to also log each
+raw hook payload.</li>
+</ol>
 <h2 id="configure">Configure</h2>
 <p>Layers, later wins: plugin defaults, then <code>~/.pastey.toml</code>, then <code>&lt;project&gt;/.pastey.toml</code>.
 <code>editor</code> and <code>editor_args</code> override; <code>allow</code> and <code>deny</code> lists add to the defaults.</p>

@@ -35,6 +35,9 @@ inline mentions (`git status`), or for text the user did not ask to reuse.
 6. Use `Write` (not a shell redirect) so the hook sees it. Never overwrite an existing
    snippet; the numbered history is kept on purpose.
 7. Tell the user in one line which file you wrote. The editor opens it automatically.
+8. If the `Write` is blocked or declined (for example by the permission mode), say so
+   plainly — no file exists, so nothing will open — and give the text in chat instead.
+   Suggest switching to a permission mode that allows writes if they want the file.
 
 ## Documents
 

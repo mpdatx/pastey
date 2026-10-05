@@ -73,7 +73,21 @@ img,svg{max-width:100%}
 <main>
 <h1>Gates archive</h1>
 <p class="summary">Answered and dropped gates, with their verdicts, oldest first.</p>
+<details class="toc"><summary>On this page</summary><ul><li class="l2"><a href="#g01-do-a-spec-write-and-a-snippet-write-each-open-in-vs-code-in-a-real-session">G01. Do a spec write and a snippet write each open in VS Code in a real session?</a></li><li class="l3"><a href="#verdicts">Verdicts</a></li></ul></details>
 
+<h2 id="g01-do-a-spec-write-and-a-snippet-write-each-open-in-vs-code-in-a-real-session">G01. Do a spec write and a snippet write each open in VS Code in a real session?</h2>
+<p>Status: answered · Asked: 2026-10-04 · For: B01 · Needs: Plugin loaded with <code>claude --plugin-dir</code></p>
+<p>Setup: in a scratch project, start <code>claude --plugin-dir G:\claude\pastey</code>. Ask Claude to
+(1) write a short spec to <code>docs/superpowers/specs/</code> and (2) give you an SQL query to
+count orders by region.
+Passes if: both files open in VS Code without you doing anything; the SQL appears as
+<code>snippets/0001-&lt;meaningful-name&gt;.sql</code> with syntax highlighting; editing the spec again
+does not steal focus.
+Evidence: <code>%TEMP%\pastey\pastey.log</code> (set <code>PASTEY_DEBUG=1</code> to log raw hook payloads).</p>
+<h3 id="verdicts">Verdicts</h3>
+<ul>
+<li>2026-10-04 — &quot;it worked when i started in manual mode&quot; — pass. Checked: plugin loaded with <code>claude --plugin-dir</code>, session started in manual permission mode. An earlier attempt in auto mode never reached the hook: auto mode's safety classifier gave no verdict on the Write calls, so no file was written.</li>
+</ul>
 
 </main>
 </div>
