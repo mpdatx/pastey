@@ -73,7 +73,7 @@ img,svg{max-width:100%}
 <main>
 <h1>Architecture</h1>
 <p class="summary">How the pieces fit together, and where each lives in the code.</p>
-<details class="toc"><summary>On this page</summary><ul><li class="l2"><a href="#overview">Overview</a></li><li class="l2"><a href="#components">Components</a></li><li class="l3"><a href="#matching-and-config-scriptspastey_openpy-configdefaultstoml">Matching and config (scripts/pasteyopen.py, config/defaults.toml)</a></li><li class="l3"><a href="#opener-scriptspastey_openpy">Opener (scripts/pasteyopen.py)</a></li><li class="l3"><a href="#plugin-wiring-claude-pluginpluginjson-hookshooksjson">Plugin wiring (.claude-plugin/plugin.json, hooks/hooks.json)</a></li><li class="l3"><a href="#skill-skillspasteyskillmd">Skill (skills/pastey/SKILL.md)</a></li><li class="l2"><a href="#code-pointers">Code pointers</a></li></ul></details>
+<details class="toc"><summary>On this page</summary><ul><li class="l2"><a href="#overview">Overview</a></li><li class="l2"><a href="#components">Components</a></li><li class="l3"><a href="#matching-and-config-scriptspastey_openpy-configdefaultstoml">Matching and config (scripts/pasteyopen.py, config/defaults.toml)</a></li><li class="l3"><a href="#opener-scriptspastey_openpy">Opener (scripts/pasteyopen.py)</a></li><li class="l3"><a href="#plugin-wiring-claude-pluginpluginjson-hookshooksjson">Plugin wiring (.claude-plugin/plugin.json, hooks/hooks.json)</a></li><li class="l3"><a href="#manual-installer-scriptspastey_installpy">Manual installer (scripts/pasteyinstall.py)</a></li><li class="l3"><a href="#skill-skillspasteyskillmd">Skill (skills/pastey/SKILL.md)</a></li><li class="l2"><a href="#code-pointers">Code pointers</a></li></ul></details>
 
 <h2 id="overview">Overview</h2>
 <p>pastey is a Claude Code plugin with one opening mechanism. When Claude writes a file
@@ -129,6 +129,18 @@ decode, parse or validate is skipped whole and logged; the other layers still ap
 <p>The plugin is named <code>pastey</code>. <code>hooks.json</code> registers one <code>PostToolUse</code> hook on
 <code>Write|Edit|MultiEdit</code> that runs <code>uv run --no-project ${CLAUDE_PLUGIN_ROOT}/scripts/pastey_open.py</code>
 under bash. The script's PEP 723 header requires Python 3.11+, which <code>uv</code> provides.</p>
+<h3 id="manual-installer-scriptspastey_installpy">Manual installer (<code>scripts/pastey_install.py</code>)</h3>
+<p>The alternative to installing as a plugin. <code>install(claude_dir)</code> copies
+<code>skills/pastey/SKILL.md</code> to <code>&lt;claude_dir&gt;/skills/pastey/</code> and merges one <code>PostToolUse</code>
+hook (<code>uv run --no-project &quot;&lt;repo&gt;/scripts/pastey_open.py&quot;</code>) into
+<code>&lt;claude_dir&gt;/settings.json</code>. <code>&lt;claude_dir&gt;</code> is <code>~/.claude</code>, <code>&lt;project&gt;/.claude</code>
+(<code>--project</code>) or <code>--claude-dir</code>. It is idempotent; our hook is recognised by
+<code>pastey_open.py</code> in its command, so a moved clone updates the path instead of adding a
+second hook. Invalid JSON or wrongly shaped <code>hooks</code> raises <code>SettingsError</code> before anything
+is written. The first change saves <code>settings.json.pastey.bak</code> (never overwritten). <code>uninstall</code>
+removes only our hook (and containers that become empty) and the skill folder, and only
+when it holds a <code>SKILL.md</code>. The plugin and the manual install are alternatives: both
+together register the hook twice.</p>
 <h3 id="skill-skillspasteyskillmd">Skill (<code>skills/pastey/SKILL.md</code>)</h3>
 <p>Instructions only, no code. It tells Claude when copy/paste text deserves a snippet file,
 how to pick the next 4-digit number from <code>snippets/</code>, how to name it
@@ -148,6 +160,10 @@ back to printing the text; the hook can only react to writes that happen.</p>
 <tr>
 <td>Opener, glob matching, config loading</td>
 <td><code>scripts/pastey_open.py</code></td>
+</tr>
+<tr>
+<td>Manual (non-plugin) installer</td>
+<td><code>scripts/pastey_install.py</code></td>
 </tr>
 <tr>
 <td>Default editor, allow and deny globs</td>

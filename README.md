@@ -16,15 +16,38 @@ checks the written path against allow/deny globs and launches your editor. A new
 created file always opens; a file edited later opens only if it has not been opened yet
 this session. Source code never opens unless you allow it.
 
-## Install (development)
+## Install
 
 Requires [uv](https://docs.astral.sh/uv/) and an editor CLI on PATH (`code` for VS Code).
 The opener needs Python 3.11+; if none is installed, uv downloads one the first time the
 hook runs, so that first write can be slow.
 
+Pick **one** of the two ways below. Using both would register the hook twice.
+
+### Try it for one session (plugin)
+
 ```
 claude --plugin-dir G:\claude\pastey
 ```
+
+### Install it yourself (no marketplace)
+
+Clone the repo somewhere stable, then run its installer. It copies the skill to
+`<claude-dir>/skills/pastey` and merges the hook into `<claude-dir>/settings.json`,
+keeping everything already in that file. Re-running is safe, and the first run saves your
+original settings as `settings.json.pastey.bak`.
+
+```
+uv run scripts/pastey_install.py install                    # for you, in every project (~/.claude)
+uv run scripts/pastey_install.py install --project C:\work\myproj   # for one project only
+uv run scripts/pastey_install.py status
+uv run scripts/pastey_install.py uninstall                  # removes only what it added
+```
+
+Restart Claude Code afterwards. The hook points at the cloned repo, so keep the clone
+where it is; if you move it, re-run `install` to update the path. To update pastey, pull
+the repo and re-run `install` (it refreshes the skill copy). If your `settings.json` is
+not valid JSON the installer stops and changes nothing.
 
 ## Using pastey
 

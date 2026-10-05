@@ -74,7 +74,7 @@ img,svg{max-width:100%}
 <h1>pastey</h1>
 <p class="about">The repository&#x27;s README — its front page on the code host.</p>
 <p class="meta source">Source: <a href="../../../README.md"><code>README.md</code></a> — outside <code>docs/</code>, rendered here for reading.</p>
-<details class="toc"><summary>On this page</summary><ul><li class="l2"><a href="#how-it-works">How it works</a></li><li class="l2"><a href="#install-development">Install (development)</a></li><li class="l2"><a href="#using-pastey">Using pastey</a></li><li class="l2"><a href="#configure">Configure</a></li><li class="l2"><a href="#limitations">Limitations</a></li></ul></details>
+<details class="toc"><summary>On this page</summary><ul><li class="l2"><a href="#how-it-works">How it works</a></li><li class="l2"><a href="#install">Install</a></li><li class="l3"><a href="#try-it-for-one-session-plugin">Try it for one session (plugin)</a></li><li class="l3"><a href="#install-it-yourself-no-marketplace">Install it yourself (no marketplace)</a></li><li class="l2"><a href="#using-pastey">Using pastey</a></li><li class="l2"><a href="#configure">Configure</a></li><li class="l2"><a href="#limitations">Limitations</a></li></ul></details>
 
 <p>A Claude Code plugin that automatically opens the things Claude produces for you to read
 or reuse in your editor (VS Code by default):</p>
@@ -90,12 +90,28 @@ them with syntax highlighting and keeps a numbered history.</li>
 checks the written path against allow/deny globs and launches your editor. A newly
 created file always opens; a file edited later opens only if it has not been opened yet
 this session. Source code never opens unless you allow it.</p>
-<h2 id="install-development">Install (development)</h2>
+<h2 id="install">Install</h2>
 <p>Requires <a href="https://docs.astral.sh/uv/">uv</a> and an editor CLI on PATH (<code>code</code> for VS Code).
 The opener needs Python 3.11+; if none is installed, uv downloads one the first time the
 hook runs, so that first write can be slow.</p>
+<p>Pick <strong>one</strong> of the two ways below. Using both would register the hook twice.</p>
+<h3 id="try-it-for-one-session-plugin">Try it for one session (plugin)</h3>
 <pre><code>claude --plugin-dir G:\claude\pastey
 </code></pre>
+<h3 id="install-it-yourself-no-marketplace">Install it yourself (no marketplace)</h3>
+<p>Clone the repo somewhere stable, then run its installer. It copies the skill to
+<code>&lt;claude-dir&gt;/skills/pastey</code> and merges the hook into <code>&lt;claude-dir&gt;/settings.json</code>,
+keeping everything already in that file. Re-running is safe, and the first run saves your
+original settings as <code>settings.json.pastey.bak</code>.</p>
+<pre><code>uv run scripts/pastey_install.py install                    # for you, in every project (~/.claude)
+uv run scripts/pastey_install.py install --project C:\work\myproj   # for one project only
+uv run scripts/pastey_install.py status
+uv run scripts/pastey_install.py uninstall                  # removes only what it added
+</code></pre>
+<p>Restart Claude Code afterwards. The hook points at the cloned repo, so keep the clone
+where it is; if you move it, re-run <code>install</code> to update the path. To update pastey, pull
+the repo and re-run <code>install</code> (it refreshes the skill copy). If your <code>settings.json</code> is
+not valid JSON the installer stops and changes nothing.</p>
 <h2 id="using-pastey">Using pastey</h2>
 <p><strong>Pick a permission mode where writes can happen.</strong> pastey reacts to files Claude writes,
 so the write has to go through first. pastey was verified in manual permission mode

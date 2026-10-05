@@ -21,10 +21,10 @@ exclude = []
 # at least one of `pages` should change in the same commit. All paths are relative to
 # the repository root; a page may live outside docs/ (e.g. "LICENSE.md", "CONTRIBUTING.md").
 [[map]]
-paths = ["scripts/pastey_open.py", "config/**", "hooks/**", "skills/**", ".claude-plugin/**"]
+paths = ["scripts/pastey_open.py", "scripts/pastey_install.py", "config/**", "hooks/**", "skills/**", ".claude-plugin/**"]
 pages = ["docs/architecture.md"]
 
 # Tracked files matching `include` (minus `exclude`) should be covered by some [[map]].
 [coverage]
-include = ["scripts/pastey_open.py", "config/**", "hooks/**", "skills/**", ".claude-plugin/**"]
+include = ["scripts/pastey_open.py", "scripts/pastey_install.py", "config/**", "hooks/**", "skills/**", ".claude-plugin/**"]
 exclude = []

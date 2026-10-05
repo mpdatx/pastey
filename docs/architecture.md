@@ -72,6 +72,20 @@ The plugin is named `pastey`. `hooks.json` registers one `PostToolUse` hook on
 `Write|Edit|MultiEdit` that runs `uv run --no-project ${CLAUDE_PLUGIN_ROOT}/scripts/pastey_open.py`
 under bash. The script's PEP 723 header requires Python 3.11+, which `uv` provides.
 
+### Manual installer (`scripts/pastey_install.py`)
+
+The alternative to installing as a plugin. `install(claude_dir)` copies
+`skills/pastey/SKILL.md` to `<claude_dir>/skills/pastey/` and merges one `PostToolUse`
+hook (`uv run --no-project "<repo>/scripts/pastey_open.py"`) into
+`<claude_dir>/settings.json`. `<claude_dir>` is `~/.claude`, `<project>/.claude`
+(`--project`) or `--claude-dir`. It is idempotent; our hook is recognised by
+`pastey_open.py` in its command, so a moved clone updates the path instead of adding a
+second hook. Invalid JSON or wrongly shaped `hooks` raises `SettingsError` before anything
+is written. The first change saves `settings.json.pastey.bak` (never overwritten). `uninstall`
+removes only our hook (and containers that become empty) and the skill folder, and only
+when it holds a `SKILL.md`. The plugin and the manual install are alternatives: both
+together register the hook twice.
+
 ### Skill (`skills/pastey/SKILL.md`)
 
 Instructions only, no code. It tells Claude when copy/paste text deserves a snippet file,
@@ -86,6 +100,7 @@ back to printing the text; the hook can only react to writes that happen.
 | Area | Where |
 |---|---|
 | Opener, glob matching, config loading | `scripts/pastey_open.py` |
+| Manual (non-plugin) installer | `scripts/pastey_install.py` |
 | Default editor, allow and deny globs | `config/defaults.toml` |
 | Hook registration | `hooks/hooks.json` |
 | Plugin manifest | `.claude-plugin/plugin.json` |
