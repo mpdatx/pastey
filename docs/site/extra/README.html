@@ -108,6 +108,10 @@ deny = [&quot;docs/drafts/**&quot;]
 <ul>
 <li>The editor CLI cannot report open tabs, so a tab you close mid-session stays closed
 until the next session (or until the file is created again).</li>
+<li>On Windows, a file whose path contains <code>&amp; | &lt; &gt; ^ % &quot;</code> is not opened (the <code>code.cmd</code>
+launcher runs through <code>cmd.exe</code>, so such paths are refused and logged). The skill keeps
+snippet names to <code>a-z</code>, digits and hyphens. A project folder with <code>&amp;</code> in its name never
+opens files for the same reason.</li>
 <li>Only text that becomes a file is opened; the skill is how chat text gets there.</li>
 </ul>
 <p>Failures are logged to <code>%TEMP%\pastey\pastey.log</code> and never interrupt Claude. Set

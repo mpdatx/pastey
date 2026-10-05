@@ -42,6 +42,17 @@ errors go to `%TEMP%\pastey\pastey.log`. Set `PASTEY_DEBUG=1` to log each raw pa
 `PASTEY_STATE_DIR` and `PASTEY_USER_CONFIG` relocate the state directory and user config
 (used by the tests).
 
+Three Windows-driven safeguards, each found by review and pinned by a test:
+
+- Hook stdin is read as bytes and decoded as UTF-8, not with the locale encoding, so
+  non-ASCII paths arrive intact.
+- On Windows the editor resolves to `code.cmd`, which runs through `cmd.exe`. If the path
+  to open contains any of `& | < > ^ % "`, `launch` refuses (`ValueError`, logged) rather
+  than let a crafted filename execute commands.
+- Config layers are read as UTF-8 (a BOM is accepted) and type-checked: `editor` must be
+  a string and `editor_args`, `allow`, `deny` lists of strings. A layer that fails to
+  decode, parse or validate is skipped whole and logged; the other layers still apply.
+
 ### Plugin wiring (`.claude-plugin/plugin.json`, `hooks/hooks.json`)
 
 The plugin is named `pastey`. `hooks.json` registers one `PostToolUse` hook on

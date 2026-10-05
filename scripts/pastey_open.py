@@ -45,12 +45,23 @@ def matches(rel, globs):
     return any(glob_to_regex(g).match(rel) for g in globs)
 
 
+def _is_str_list(value):
+    return isinstance(value, list) and all(isinstance(v, str) for v in value)
+
+
 def _read_toml(path):
+    """Read one config layer. Raises ValueError for undecodable, malformed or mistyped files."""
     try:
-        with open(path, "rb") as f:
-            return tomllib.load(f)
+        raw = Path(path).read_bytes()
     except FileNotFoundError:
         return {}
+    data = tomllib.loads(raw.decode("utf-8-sig"))  # utf-8-sig: PowerShell writes a BOM
+    if "editor" in data and not isinstance(data["editor"], str):
+        raise ValueError("editor must be a string")
+    for key in ("editor_args", "allow", "deny"):
+        if key in data and not _is_str_list(data[key]):
+            raise ValueError(f"{key} must be a list of strings")
+    return data
 
 
 def load_config(*layer_paths, on_error=None):
@@ -59,7 +70,7 @@ def load_config(*layer_paths, on_error=None):
     for path in layer_paths:
         try:
             data = _read_toml(path)
-        except (tomllib.TOMLDecodeError, OSError) as exc:
+        except (ValueError, OSError) as exc:  # ValueError covers TOML and decode errors
             if on_error:
                 on_error(path, exc)
             continue
@@ -113,10 +124,17 @@ def save_record(state, session_id, opened):
     os.replace(tmp, target)
 
 
+_CMD_UNSAFE = set('&|<>^%"')
+
+
 def launch(cfg, path, popen=subprocess.Popen):
     exe = shutil.which(cfg["editor"])
     if exe is None:
         raise FileNotFoundError(f"editor not found on PATH: {cfg['editor']}")
+    # On Windows `code` is code.cmd, which runs through cmd.exe; Python does not escape
+    # its metacharacters, so a crafted filename would execute commands. Refuse those.
+    if exe.lower().endswith((".cmd", ".bat")) and _CMD_UNSAFE & set(str(path)):
+        raise ValueError(f"refusing to pass {str(path)!r} to a batch-file editor (cmd.exe metacharacters)")
     flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
     popen(
         [exe, *cfg["editor_args"], str(path)],
@@ -168,7 +186,7 @@ def handle(payload, env=os.environ, popen=subprocess.Popen):
 def main():
     state = state_dir(os.environ)
     try:
-        raw = sys.stdin.read()
+        raw = sys.stdin.buffer.read().decode("utf-8")  # hook JSON is UTF-8, whatever the locale
         if os.environ.get("PASTEY_DEBUG"):
             log(state, f"payload: {raw}")
         handle(json.loads(raw))

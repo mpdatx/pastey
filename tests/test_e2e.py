@@ -58,12 +58,12 @@ class EndToEndTests(unittest.TestCase):
             "tool_input": {"file_path": str(self.root / rel)},
             "tool_response": {"type": "create"},
         }
+        # Claude Code sends UTF-8 JSON; send real bytes so a locale-decoded stdin is caught.
         return subprocess.run(
             ["uv", "run", "--no-project", str(SCRIPT)],
-            input=json.dumps(payload),
+            input=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
             env=self.env,
             capture_output=True,
-            text=True,
             timeout=120,
         )
 
@@ -77,15 +77,20 @@ class EndToEndTests(unittest.TestCase):
     def test_allowed_path_launches_editor(self):
         result = self.pipe("snippets/0001-orders-by-region.sql")
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout, "")
+        self.assertEqual(result.stdout, b"")
         logged = self.wait_for_log()
         self.assertIn("-r", logged)
         self.assertIn("0001-orders-by-region.sql", logged)
 
+    def test_unicode_filename_arrives_intact(self):
+        result = self.pipe("snippets/0002-café query.sql")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("0002-café query.sql", self.wait_for_log())
+
     def test_denied_path_does_not_launch_editor(self):
         result = self.pipe("src/app.py")
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout, "")
+        self.assertEqual(result.stdout, b"")
         time.sleep(1)
         self.assertFalse(self.stub_log.exists())
 

@@ -111,6 +111,34 @@ class OpenOnceTests(Base):
         self.assertTrue(po.handle(payload, env=self.env, popen=self.popen))
 
 
+@unittest.skipUnless(os.name == "nt", "cmd.exe batch handling")
+class CmdShimTests(unittest.TestCase):
+    """`code` resolves to code.cmd on Windows, which CreateProcess runs through cmd.exe."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.dir = Path(self.tmp.name).resolve()
+        shim = self.dir / "ed.cmd"
+        shim.write_text("@echo off\r\n", encoding="ascii")
+        self.cfg = {"editor": str(shim), "editor_args": ["-r"]}
+        self.calls = []
+
+    def popen(self, argv, **kwargs):
+        self.calls.append(argv)
+
+    def test_cmd_metacharacters_in_path_are_refused(self):
+        for name in ("a&b.sql", "a|b.sql", "a^b.sql", "a%USERNAME%.sql", 'a"b.sql'):
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                po.launch(self.cfg, self.dir / name, popen=self.popen)
+        self.assertEqual(self.calls, [])
+
+    def test_ordinary_path_with_spaces_and_parens_still_launches(self):
+        path = self.dir / "Program Files (x86)" / "my proj" / "a.md"
+        po.launch(self.cfg, path, popen=self.popen)
+        self.assertEqual(len(self.calls), 1)
+
+
 class FailureTests(Base):
     def test_malformed_project_config_falls_back_and_logs(self):
         self.project_config("allow = [\n")
@@ -123,7 +151,8 @@ class FailureTests(Base):
             self.run_hook("Write", "docs/a.md", "create")
 
     def run_main(self, stdin_text):
-        with mock.patch.dict(os.environ, self.env), mock.patch("sys.stdin", io.StringIO(stdin_text)):
+        stdin = io.TextIOWrapper(io.BytesIO(stdin_text.encode("utf-8")), encoding="utf-8")
+        with mock.patch.dict(os.environ, self.env), mock.patch("sys.stdin", stdin):
             return po.main()
 
     def test_main_logs_missing_editor_and_returns_zero(self):

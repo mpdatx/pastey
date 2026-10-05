@@ -101,6 +101,17 @@ is <code>create</code> always opens; other writes open once per session. <code>m
 errors go to <code>%TEMP%\pastey\pastey.log</code>. Set <code>PASTEY_DEBUG=1</code> to log each raw payload.
 <code>PASTEY_STATE_DIR</code> and <code>PASTEY_USER_CONFIG</code> relocate the state directory and user config
 (used by the tests).</p>
+<p>Three Windows-driven safeguards, each found by review and pinned by a test:</p>
+<ul>
+<li>Hook stdin is read as bytes and decoded as UTF-8, not with the locale encoding, so
+non-ASCII paths arrive intact.</li>
+<li>On Windows the editor resolves to <code>code.cmd</code>, which runs through <code>cmd.exe</code>. If the path
+to open contains any of <code>&amp; | &lt; &gt; ^ % &quot;</code>, <code>launch</code> refuses (<code>ValueError</code>, logged) rather
+than let a crafted filename execute commands.</li>
+<li>Config layers are read as UTF-8 (a BOM is accepted) and type-checked: <code>editor</code> must be
+a string and <code>editor_args</code>, <code>allow</code>, <code>deny</code> lists of strings. A layer that fails to
+decode, parse or validate is skipped whole and logged; the other layers still apply.</li>
+</ul>
 <h3 id="plugin-wiring-claude-pluginpluginjson-hookshooksjson">Plugin wiring (<code>.claude-plugin/plugin.json</code>, <code>hooks/hooks.json</code>)</h3>
 <p>The plugin is named <code>pastey</code>. <code>hooks.json</code> registers one <code>PostToolUse</code> hook on
 <code>Write|Edit|MultiEdit</code> that runs <code>uv run --no-project ${CLAUDE_PLUGIN_ROOT}/scripts/pastey_open.py</code>

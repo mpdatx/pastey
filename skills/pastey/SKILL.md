@@ -22,15 +22,19 @@ inline mentions (`git status`), or for text the user did not ask to reuse.
 
 1. List `snippets/` (Glob `snippets/*`) and take the highest `NNNN` prefix plus one,
    zero-padded to 4 digits. If the folder is missing, start at `0001`; `Write` creates it.
-2. Name it `snippets/NNNN-<what-it-does>.<ext>` — lowercase, hyphenated, meaningful
-   (`0003-orders-by-region.sql`, not `query.sql`).
+2. Name it `snippets/NNNN-<what-it-does>.<ext>` — meaningful (`0003-orders-by-region.sql`,
+   not `query.sql`). The name part uses only lowercase `a-z`, digits and hyphens: no
+   spaces, no non-ASCII, and never `& | ^ % " < >` (on Windows these break or are
+   refused when the editor is launched).
 3. Use the extension for the content (`.sql`, `.ps1`, `.sh`, `.cmd`, `.json`, `.yaml`,
    `.regex`, `.txt` if nothing fits) so the editor highlights it.
-4. Put only the copyable text in the file. Add a one- or two-line comment header with
+4. Never put secrets (passwords, tokens, connection strings) in a snippet: snippets stay
+   in the project and may be committed. Use a placeholder such as `<PASSWORD>`.
+5. Put only the copyable text in the file. Add a one- or two-line comment header with
    what it does only when the language has comments and the purpose is not obvious.
-5. Use `Write` (not a shell redirect) so the hook sees it. Never overwrite an existing
+6. Use `Write` (not a shell redirect) so the hook sees it. Never overwrite an existing
    snippet; the numbered history is kept on purpose.
-6. Tell the user in one line which file you wrote. The editor opens it automatically.
+7. Tell the user in one line which file you wrote. The editor opens it automatically.
 
 ## Documents
 

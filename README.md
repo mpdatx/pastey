@@ -43,6 +43,10 @@ Defaults: allow `docs/**/*.md`, `docs/superpowers/**`, `snippets/**`, `README.md
 
 - The editor CLI cannot report open tabs, so a tab you close mid-session stays closed
   until the next session (or until the file is created again).
+- On Windows, a file whose path contains `& | < > ^ % "` is not opened (the `code.cmd`
+  launcher runs through `cmd.exe`, so such paths are refused and logged). The skill keeps
+  snippet names to `a-z`, digits and hyphens. A project folder with `&` in its name never
+  opens files for the same reason.
 - Only text that becomes a file is opened; the skill is how chat text gets there.
 
 Failures are logged to `%TEMP%\pastey\pastey.log` and never interrupt Claude. Set

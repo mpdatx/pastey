@@ -86,6 +86,35 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(cfg["editor"], "code")
         self.assertEqual(errors, [bad])
 
+    def test_utf8_bom_layer_still_applies(self):
+        p = self.dir / "bom.toml"
+        p.write_bytes(b"\xef\xbb\xbf" + b'editor = "cursor"\n')
+        self.assertEqual(po.load_config(po.DEFAULTS_PATH, p)["editor"], "cursor")
+
+    def test_utf16_layer_is_skipped_and_reported(self):
+        p = self.dir / "utf16.toml"
+        p.write_bytes('editor = "cursor"\n'.encode("utf-16"))
+        errors = []
+        cfg = po.load_config(po.DEFAULTS_PATH, p, on_error=lambda path, e: errors.append(path))
+        self.assertEqual(cfg["editor"], "code")
+        self.assertEqual(errors, [p])
+
+    def test_wrong_value_types_skip_the_whole_layer(self):
+        baseline = po.load_config(po.DEFAULTS_PATH)
+        for text in (
+            'allow = "snippets/**"\n',
+            "allow = 5\n",
+            'editor_args = "-r"\n',
+            'editor = ["code"]\n',
+            "deny = [1]\n",
+        ):
+            with self.subTest(text=text):
+                p = self.write("typed.toml", text)
+                errors = []
+                cfg = po.load_config(po.DEFAULTS_PATH, p, on_error=lambda path, e: errors.append(path))
+                self.assertEqual(cfg, baseline)
+                self.assertEqual(errors, [p])
+
 
 if __name__ == "__main__":
     unittest.main()
