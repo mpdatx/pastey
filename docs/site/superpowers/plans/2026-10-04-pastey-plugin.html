@@ -985,7 +985,7 @@ project root or `~/.pastey.toml`.
 <ul>
 <li>[ ] <strong>Step 2: Update the docs</strong></li>
 </ul>
-<p><code>README.md</code> (create): what pastey is, install for development (<code>claude --plugin-dir G:\claude\pastey</code>), the default allow/deny, <code>.pastey.toml</code> example:</p>
+<p><code>README.md</code> (create): what pastey is, install for development (<code>claude --plugin-dir &lt;path-to-pastey&gt;</code>), the default allow/deny, <code>.pastey.toml</code> example:</p>
 <pre><code class="language-toml">editor = &quot;code&quot;              # any editor CLI on PATH
 editor_args = [&quot;-r&quot;]         # reuse the current window
 allow = [&quot;reports/**/*.html&quot;]  # additive to the defaults
@@ -1010,7 +1010,7 @@ deny = [&quot;docs/drafts/**&quot;]
 <pre><code class="language-markdown">## G01. Do a spec write and a snippet write each open in VS Code in a real session?
 Status: waiting · Asked: 2026-10-04 · For: B01 · Needs: Plugin loaded with `claude --plugin-dir`
 
-Setup: in a scratch project, start `claude --plugin-dir G:\claude\pastey`. Ask Claude to
+Setup: in a scratch project, start `claude --plugin-dir &lt;path-to-pastey&gt;`. Ask Claude to
 (1) write a short spec to `docs/superpowers/specs/` and (2) give you an SQL query to
 count orders by region.
 Passes if: both files open in VS Code without you doing anything; the SQL appears as

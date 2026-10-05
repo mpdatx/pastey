@@ -27,7 +27,7 @@ Pick **one** of the two ways below. Using both would register the hook twice.
 ### Try it for one session (plugin)
 
 ```
-claude --plugin-dir G:\claude\pastey
+claude --plugin-dir <path-to-pastey>
 ```
 
 ### Install it yourself (no marketplace)

@@ -8,7 +8,7 @@ summary: Answered and dropped gates, with their verdicts, oldest first.
 ## G01. Do a spec write and a snippet write each open in VS Code in a real session?
 Status: answered · Asked: 2026-10-04 · For: B01 · Needs: Plugin loaded with `claude --plugin-dir`
 
-Setup: in a scratch project, start `claude --plugin-dir G:\claude\pastey`. Ask Claude to
+Setup: in a scratch project, start `claude --plugin-dir <path-to-pastey>`. Ask Claude to
 (1) write a short spec to `docs/superpowers/specs/` and (2) give you an SQL query to
 count orders by region.
 Passes if: both files open in VS Code without you doing anything; the SQL appears as
