@@ -16,7 +16,7 @@ Nothing is waiting on you.
 
 | Spec | Status | Plans | Backlog |
 |---|---|---|---|
-| [pastey design](superpowers/specs/2026-10-04-pastey-design.md) | draft | — | B01 |
+| [pastey design](superpowers/specs/2026-10-04-pastey-design.md) | draft | [pastey plugin implementation plan](superpowers/plans/2026-10-04-pastey-plugin.md) (draft) | B01 |
 
 ## Backlog
 
