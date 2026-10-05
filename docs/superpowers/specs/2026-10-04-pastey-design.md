@@ -1,7 +1,7 @@
 ---
 title: pastey design
 summary: A Claude Code plugin that opens generated documents and copy/paste snippets in the user's editor automatically.
-status: draft
+status: in-progress
 created: 2026-10-04
 backlog: [B01]
 ---

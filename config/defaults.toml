@@ -1,0 +1,18 @@
+# pastey defaults. Override in ~/.pastey.toml or <project>/.pastey.toml.
+# allow/deny lists are additive across layers; deny is checked first.
+editor = "code"
+editor_args = ["-r"]
+
+# Globs are relative to the project root. HTML is deliberately not opened by default.
+allow = [
+  "docs/**/*.md",
+  "docs/superpowers/**",
+  "snippets/**",
+  "README.md",
+]
+
+# Generated files that are rewritten on every build.
+deny = [
+  "docs/site/**",
+  "docs/roadmap.md",
+]

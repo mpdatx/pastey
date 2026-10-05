@@ -14,7 +14,13 @@ design will be brainstormed and recorded as a spec under `docs/superpowers/specs
 
 ## Components
 
-None built yet.
+### Matching and config (`scripts/pastey_open.py`, `config/defaults.toml`)
+
+`matches(rel, globs)` implements `**`, `*` and `?` globs anchored at the project root
+(case-insensitive on Windows). `load_config` merges `config/defaults.toml`, the user
+file (`~/.pastey.toml`, or `$PASTEY_USER_CONFIG`) and the project `.pastey.toml`:
+`editor` and `editor_args` override, `allow` and `deny` lists are additive. A malformed
+layer is skipped and reported through `on_error`.
 
 ## Code pointers
 

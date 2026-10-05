@@ -1,7 +1,7 @@
 ---
 title: pastey plugin implementation plan
 summary: Build the opener script, hook wiring, snippet skill and docs for the pastey plugin.
-status: draft
+status: in-progress
 spec: superpowers/specs/2026-10-04-pastey-design.md
 ---
 

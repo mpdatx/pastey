@@ -70,14 +70,19 @@ img,svg{max-width:100%}
 <main>
 <h1>Architecture</h1>
 <p class="summary">How the pieces fit together, and where each lives in the code.</p>
-<details class="toc"><summary>On this page</summary><ul><li class="l2"><a href="#overview">Overview</a></li><li class="l2"><a href="#components">Components</a></li><li class="l2"><a href="#code-pointers">Code pointers</a></li></ul></details>
+<details class="toc"><summary>On this page</summary><ul><li class="l2"><a href="#overview">Overview</a></li><li class="l2"><a href="#components">Components</a></li><li class="l3"><a href="#matching-and-config-scriptspastey_openpy-configdefaultstoml">Matching and config (scripts/pasteyopen.py, config/defaults.toml)</a></li><li class="l2"><a href="#code-pointers">Code pointers</a></li></ul></details>
 
 <h2 id="overview">Overview</h2>
 <p>Not designed yet. The deliverable is a Claude Code skill (instructions Claude follows,
 possibly with helper scripts or hooks) that opens output in the user's editor. The
 design will be brainstormed and recorded as a spec under <code>docs/superpowers/specs/</code>.</p>
 <h2 id="components">Components</h2>
-<p>None built yet.</p>
+<h3 id="matching-and-config-scriptspastey_openpy-configdefaultstoml">Matching and config (<code>scripts/pastey_open.py</code>, <code>config/defaults.toml</code>)</h3>
+<p><code>matches(rel, globs)</code> implements <code>**</code>, <code>*</code> and <code>?</code> globs anchored at the project root
+(case-insensitive on Windows). <code>load_config</code> merges <code>config/defaults.toml</code>, the user
+file (<code>~/.pastey.toml</code>, or <code>$PASTEY_USER_CONFIG</code>) and the project <code>.pastey.toml</code>:
+<code>editor</code> and <code>editor_args</code> override, <code>allow</code> and <code>deny</code> lists are additive. A malformed
+layer is skipped and reported through <code>on_error</code>.</p>
 <h2 id="code-pointers">Code pointers</h2>
 <table>
 <thead>
