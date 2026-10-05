@@ -70,7 +70,7 @@ img,svg{max-width:100%}
 <main>
 <h1>Architecture</h1>
 <p class="summary">How the pieces fit together, and where each lives in the code.</p>
-<details class="toc"><summary>On this page</summary><ul><li class="l2"><a href="#overview">Overview</a></li><li class="l2"><a href="#components">Components</a></li><li class="l3"><a href="#matching-and-config-scriptspastey_openpy-configdefaultstoml">Matching and config (scripts/pasteyopen.py, config/defaults.toml)</a></li><li class="l2"><a href="#code-pointers">Code pointers</a></li></ul></details>
+<details class="toc"><summary>On this page</summary><ul><li class="l2"><a href="#overview">Overview</a></li><li class="l2"><a href="#components">Components</a></li><li class="l3"><a href="#matching-and-config-scriptspastey_openpy-configdefaultstoml">Matching and config (scripts/pasteyopen.py, config/defaults.toml)</a></li><li class="l3"><a href="#opener-scriptspastey_openpy">Opener (scripts/pasteyopen.py)</a></li><li class="l2"><a href="#code-pointers">Code pointers</a></li></ul></details>
 
 <h2 id="overview">Overview</h2>
 <p>Not designed yet. The deliverable is a Claude Code skill (instructions Claude follows,
@@ -83,6 +83,15 @@ design will be brainstormed and recorded as a spec under <code>docs/superpowers/
 file (<code>~/.pastey.toml</code>, or <code>$PASTEY_USER_CONFIG</code>) and the project <code>.pastey.toml</code>:
 <code>editor</code> and <code>editor_args</code> override, <code>allow</code> and <code>deny</code> lists are additive. A malformed
 layer is skipped and reported through <code>on_error</code>.</p>
+<h3 id="opener-scriptspastey_openpy">Opener (<code>scripts/pastey_open.py</code>)</h3>
+<p><code>main()</code> reads the hook JSON on stdin and calls <code>handle()</code>, which resolves the written
+path against <code>$CLAUDE_PROJECT_DIR</code> (else the payload <code>cwd</code>), applies deny-then-allow,
+consults the per-session record (<code>%TEMP%\pastey\session-&lt;id&gt;.json</code>, atomic writes) and
+launches <code>&lt;editor&gt; &lt;editor_args&gt; &lt;path&gt;</code> detached. A <code>Write</code> whose <code>tool_response.type</code>
+is <code>create</code> always opens; other writes open once per session. <code>main()</code> always returns 0;
+errors go to <code>%TEMP%\pastey\pastey.log</code>. Set <code>PASTEY_DEBUG=1</code> to log each raw payload.
+<code>PASTEY_STATE_DIR</code> and <code>PASTEY_USER_CONFIG</code> relocate the state directory and user config
+(used by the tests).</p>
 <h2 id="code-pointers">Code pointers</h2>
 <table>
 <thead>

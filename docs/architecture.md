@@ -22,6 +22,17 @@ file (`~/.pastey.toml`, or `$PASTEY_USER_CONFIG`) and the project `.pastey.toml`
 `editor` and `editor_args` override, `allow` and `deny` lists are additive. A malformed
 layer is skipped and reported through `on_error`.
 
+### Opener (`scripts/pastey_open.py`)
+
+`main()` reads the hook JSON on stdin and calls `handle()`, which resolves the written
+path against `$CLAUDE_PROJECT_DIR` (else the payload `cwd`), applies deny-then-allow,
+consults the per-session record (`%TEMP%\pastey\session-<id>.json`, atomic writes) and
+launches `<editor> <editor_args> <path>` detached. A `Write` whose `tool_response.type`
+is `create` always opens; other writes open once per session. `main()` always returns 0;
+errors go to `%TEMP%\pastey\pastey.log`. Set `PASTEY_DEBUG=1` to log each raw payload.
+`PASTEY_STATE_DIR` and `PASTEY_USER_CONFIG` relocate the state directory and user config
+(used by the tests).
+
 ## Code pointers
 
 | Area | Where |

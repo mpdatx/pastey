@@ -2,8 +2,14 @@
 # requires-python = ">=3.11"
 # ///
 """pastey opener: a PostToolUse hook that opens allowlisted files in the user's editor."""
+import json
 import os
 import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
 import tomllib
 from pathlib import Path
 
@@ -63,3 +69,113 @@ def load_config(*layer_paths, on_error=None):
         for key in ("allow", "deny"):
             cfg[key] = cfg[key] + [g for g in data.get(key, []) if g not in cfg[key]]
     return cfg
+
+
+def state_dir(env):
+    return Path(env.get("PASTEY_STATE_DIR") or Path(tempfile.gettempdir()) / "pastey")
+
+
+def log(state, msg):
+    try:
+        state.mkdir(parents=True, exist_ok=True)
+        with open(state / "pastey.log", "a", encoding="utf-8") as f:
+            f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} {msg}\n")
+    except OSError:
+        pass
+
+
+def relative_path(abs_path, root):
+    """POSIX path of abs_path relative to root, or None if it is outside root."""
+    try:
+        return Path(abs_path).relative_to(Path(root).resolve()).as_posix()
+    except ValueError:
+        return None
+
+
+def _record_file(state, session_id):
+    safe = re.sub(r"[^A-Za-z0-9_-]", "_", session_id or "nosession")
+    return state / f"session-{safe}.json"
+
+
+def load_record(state, session_id):
+    try:
+        with open(_record_file(state, session_id), encoding="utf-8") as f:
+            return set(json.load(f))
+    except (FileNotFoundError, ValueError, TypeError):
+        return set()
+
+
+def save_record(state, session_id, opened):
+    state.mkdir(parents=True, exist_ok=True)
+    target = _record_file(state, session_id)
+    tmp = target.with_name(f"{target.name}.{os.getpid()}.tmp")
+    tmp.write_text(json.dumps(sorted(opened)), encoding="utf-8")
+    os.replace(tmp, target)
+
+
+def launch(cfg, path, popen=subprocess.Popen):
+    exe = shutil.which(cfg["editor"])
+    if exe is None:
+        raise FileNotFoundError(f"editor not found on PATH: {cfg['editor']}")
+    flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+    popen(
+        [exe, *cfg["editor_args"], str(path)],
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        creationflags=flags,
+    )
+
+
+def _is_create(payload):
+    response = payload.get("tool_response")
+    return (
+        payload.get("tool_name") == "Write"
+        and isinstance(response, dict)
+        and response.get("type") == "create"
+    )
+
+
+def handle(payload, env=os.environ, popen=subprocess.Popen):
+    """Open the written file if policy allows. Returns True if the editor was launched."""
+    file_path = (payload.get("tool_input") or {}).get("file_path")
+    if not file_path:
+        return False
+    root = env.get("CLAUDE_PROJECT_DIR") or payload.get("cwd") or os.getcwd()
+    state = state_dir(env)
+    user_cfg = env.get("PASTEY_USER_CONFIG") or Path.home() / ".pastey.toml"
+    cfg = load_config(
+        DEFAULTS_PATH,
+        user_cfg,
+        Path(root) / ".pastey.toml",
+        on_error=lambda p, e: log(state, f"config {p} ignored: {e!r}"),
+    )
+    abs_path = Path(file_path).resolve()
+    rel = relative_path(abs_path, root)
+    if rel is None or matches(rel, cfg["deny"]) or not matches(rel, cfg["allow"]):
+        return False
+    session_id = payload.get("session_id", "")
+    opened = load_record(state, session_id)
+    key = abs_path.as_posix()
+    if key in opened and not _is_create(payload):
+        return False
+    launch(cfg, abs_path, popen)
+    opened.add(key)
+    save_record(state, session_id, opened)
+    return True
+
+
+def main():
+    state = state_dir(os.environ)
+    try:
+        raw = sys.stdin.read()
+        if os.environ.get("PASTEY_DEBUG"):
+            log(state, f"payload: {raw}")
+        handle(json.loads(raw))
+    except Exception as exc:  # the hook must never disturb Claude
+        log(state, f"error: {exc!r}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
